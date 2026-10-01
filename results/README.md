@@ -1,6 +1,6 @@
 # Generated results
 
-This directory is populated by the replication code. Publication-facing outputs include:
+This directory is populated by the replication code. Publication-facing event-study outputs include:
 
 - `expanded_manual_sample_results.csv`
 - `expanded_manual_sample_summary.json`
@@ -12,6 +12,13 @@ This directory is populated by the replication code. Publication-facing outputs 
 - `expanded34_stack_composition.csv`
 - `expanded34_leave_one_out.csv`
 - `expanded34_diagnostics_summary.json`
+
+Supporting annual-panel outputs include:
+
+- `supporting_annual_lags.csv`
+- `supporting_annual_robustness.csv`
+- `revision_predictors.csv`
+- `supporting_annual_summary.json`
 
 The frozen benchmark script additionally writes `table3_reproduced.csv` and `table3_reproduced.json`.
 

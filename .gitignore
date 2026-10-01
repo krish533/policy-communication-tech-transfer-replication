@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Fetched/frozen large analysis input
+data/merged_autm.csv
+data/_p1_revision_tmp.csv
+
+# Generated stacked datasets
+data/derived/*.csv
+
+# Generated numerical outputs (keep README)
+results/*.csv
+results/*.json
+
+# Generated manuscript figures/PDF/build intermediates
+manuscript/figures/*.pdf
+manuscript/figures/*.png
+manuscript/*.aux
+manuscript/*.log
+manuscript/*.out
+manuscript/*.toc
+manuscript/main.pdf

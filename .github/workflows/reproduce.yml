@@ -113,7 +113,7 @@ jobs:
           set -euo pipefail
           rm -rf artifact
           mkdir -p artifact/code artifact/data/derived artifact/results artifact/manuscript
-          cp README.md REPRODUCIBILITY.md requirements.txt artifact/
+          cp README.md REPRODUCIBILITY.md TABLE_PROVENANCE.md requirements.txt artifact/
           cp -R code/. artifact/code/
           cp data/revision_codes_manual.csv data/revision_codes_rereview37.csv data/README.md artifact/data/
           cp -R data/derived/. artifact/data/derived/

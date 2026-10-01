@@ -34,29 +34,45 @@ def _numeric(s):
     return pd.to_numeric(s, errors="coerce")
 
 
+def _percent_numeric(s):
+    return pd.to_numeric(s.astype(str).str.replace("%", "", regex=False).str.strip(), errors="coerce")
+
+
 def _calendar_lookup(df: pd.DataFrame, column: str, offset: int) -> np.ndarray:
     lookup = df.set_index(["institution", "year"])[column]
     idx = pd.MultiIndex.from_arrays([df["institution"], df["year"] - offset])
     return lookup.reindex(idx).to_numpy()
 
 
+def controls_for_lag(lag: int) -> list[str]:
+    """Use lag-one controls for contemporaneous/lag-one PCI, then same-lag controls."""
+    k = 1 if lag <= 1 else lag
+    return [f"ln_research_exp_l{k}", f"ln_licensing_ftes_l{k}", f"royalty_share_l{k}"]
+
+
 def build_panel(raw: pd.DataFrame) -> pd.DataFrame:
     p = core.make_panel(raw)
-    aux = raw[["Institution_std", "Year", "Mean_Tone_Score", "Carnegie R1"]].copy()
-    aux = aux.rename(columns={"Institution_std": "institution", "Year": "year",
-                              "Mean_Tone_Score": "pci", "Carnegie R1": "carnegie_r1"})
+    aux = raw[["Institution_std", "Year", "Mean_Tone_Score", "Carnegie R1", "Royalty Share"]].copy()
+    aux = aux.rename(columns={
+        "Institution_std": "institution", "Year": "year",
+        "Mean_Tone_Score": "pci", "Carnegie R1": "carnegie_r1",
+        "Royalty Share": "royalty_share_clean",
+    })
     aux["institution"] = aux["institution"].astype("string")
     aux["year"] = _numeric(aux["year"])
     aux["pci"] = _numeric(aux["pci"])
     aux["carnegie_r1"] = _numeric(aux["carnegie_r1"])
+    aux["royalty_share_clean"] = _percent_numeric(aux["royalty_share_clean"])
     aux = aux.drop_duplicates(["institution", "year"], keep="last")
     p = p.merge(aux, on=["institution", "year"], how="left", validate="one_to_one")
+
+    # core.make_panel intentionally leaves percentage-formatted royalty shares numeric-missing
+    # because the event-study specifications do not use them. The annual supporting models do.
+    p["royalty_share"] = p["royalty_share_clean"]
 
     for col in ["pci", "ln_research_exp", "ln_licensing_ftes", "royalty_share",
                 "ln_new_patent_apps", "ln_total_patent_apps", "ln_patents_issued",
                 "ln_disclosures", "ln_licenses", "filing_margin"]:
-        if col not in p.columns:
-            continue
         for k in range(1, 6):
             p[f"{col}_l{k}"] = _calendar_lookup(p, col, k)
     p["ln_research_exp_fwd"] = _calendar_lookup(p, "ln_research_exp", -1)
@@ -67,6 +83,8 @@ def twfe(df: pd.DataFrame, outcome: str, treatment: str,
          controls: list[str] | tuple[str, ...] = CONTROLS):
     cols = [outcome, treatment, "institution", "year", *controls]
     q = df[cols].dropna().copy()
+    if q.empty:
+        raise ValueError(f"Empty TWFE sample for outcome={outcome}, treatment={treatment}, controls={list(controls)}")
     y = q[outcome].to_numpy(float)
     xcols = [treatment, *controls]
     X = q[xcols].to_numpy(float)
@@ -101,7 +119,7 @@ def lag_table(panel: pd.DataFrame) -> pd.DataFrame:
     for outcome, label in OUTCOMES:
         for lag in range(0, 6):
             treatment = "pci" if lag == 0 else f"pci_l{lag}"
-            r = twfe(panel, outcome, treatment)
+            r = twfe(panel, outcome, treatment, controls=controls_for_lag(lag))
             rows.append({"outcome": outcome, "label": label, "lag": lag, **r})
     out = pd.DataFrame(rows)
     lag1 = out[out["lag"].eq(1)].copy()
@@ -176,7 +194,7 @@ def robustness_table(panel: pd.DataFrame) -> pd.DataFrame:
     rows.append({"specification": "R1 universities only",
                  **twfe(panel[panel["carnegie_r1"].eq(1)], "filing_margin", "pci_l1")})
     rows.append({"specification": "Lag 2 PCSI",
-                 **twfe(panel, "filing_margin", "pci_l2")})
+                 **twfe(panel, "filing_margin", "pci_l2", controls=controls_for_lag(2))})
     rows.append({"specification": "Falsification: future ln research expenditure",
                  **twfe(panel, "ln_research_exp_fwd", "pci_l1")})
     return pd.DataFrame(rows)

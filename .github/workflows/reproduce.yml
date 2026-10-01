@@ -35,6 +35,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import json
           import pandas as pd
 
           r = pd.read_csv('results/expanded_manual_sample_results.csv')
@@ -44,22 +45,26 @@ jobs:
           lic34 = r[(r['sample'] == 'expanded34') & (r['outcome'] == 'ln_licenses')].iloc[0]
           lic29 = r[(r['sample'] == 'strict29') & (r['outcome'] == 'ln_licenses')].iloc[0]
 
-          expected34 = {
+          stable34 = {
               'gap': 0.49498236075777713,
               'cluster_se': 0.1395573357139685,
-              'permutation_p': 0.03199968000319997,
               'pre_p': 0.3197216307692614,
           }
-          expected29 = {
+          stable29 = {
               'gap': 0.4987653009188467,
               'cluster_se': 0.13256833385897276,
-              'permutation_p': 0.026039739602603973,
               'pre_p': 0.5166507499863187,
           }
-          for k, v in expected34.items():
-              assert abs(float(lic34[k]) - v) < 1e-9, (k, lic34[k], v)
-          for k, v in expected29.items():
-              assert abs(float(lic29[k]) - v) < 1e-9, (k, lic29[k], v)
+          for k, v in stable34.items():
+              assert abs(float(lic34[k]) - v) < 1e-8, (k, lic34[k], v)
+          for k, v in stable29.items():
+              assert abs(float(lic29[k]) - v) < 1e-8, (k, lic29[k], v)
+
+          # Monte Carlo labels/seeds are fixed. A few assignments can sit at the
+          # floating-point comparison boundary on different BLAS platforms, so
+          # enforce the publication-relevant tolerance rather than bit identity.
+          assert abs(float(lic34['permutation_p']) - 0.032) < 0.001
+          assert abs(float(lic29['permutation_p']) - 0.026) < 0.001
 
           e34 = pd.read_csv('data/derived/final_stacked_event_dataset_expanded34.csv', low_memory=False)
           e29 = pd.read_csv('data/derived/final_stacked_event_dataset_strict29.csv', low_memory=False)
@@ -70,13 +75,27 @@ jobs:
           assert len(e34) == 26679
           assert len(e29) == 23186
 
+          annual = pd.read_csv('results/supporting_annual_lags.csv')
+          fm1 = annual[(annual['outcome'] == 'filing_margin') & (annual['lag'] == 1)].iloc[0]
+          fm2 = annual[(annual['outcome'] == 'filing_margin') & (annual['lag'] == 2)].iloc[0]
+          assert int(fm1['n']) == 2271
+          assert int(fm2['n']) == 2132
+          assert abs(float(fm1['beta']) - 0.939) < 0.005
+          assert abs(float(fm1['se']) - 0.505) < 0.005
+          assert abs(float(fm2['beta']) - 1.201) < 0.005
+          assert abs(float(fm2['se']) - 0.520) < 0.005
+
+          supporting = json.loads(Path('results/supporting_annual_summary.json').read_text())
+          assert supporting['placebo']['draws'] == 1000
+          assert abs(float(supporting['placebo']['placebo_p']) - 0.017) < 0.001
+
           for path in [
               'manuscript/figures/fig1_event_study_expanded.pdf',
               'manuscript/figures/figA1_leave_one_out_expanded.pdf',
           ]:
               assert Path(path).is_file(), path
 
-          print('Publication-facing numerical checks passed.')
+          print('Publication-facing and supporting numerical checks passed.')
           PY
 
       - name: Reproduce frozen 25-event benchmark

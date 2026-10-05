@@ -13,6 +13,13 @@ This directory is populated by the replication code. Publication-facing event-st
 - `expanded34_leave_one_out.csv`
 - `expanded34_diagnostics_summary.json`
 
+Sample-construction and descriptive outputs:
+
+- `mechanical_screen.csv`
+- `descriptive_table1.csv`, `descriptive_tableA2.csv`, `descriptive_tableA10.csv`, `descriptive_tableA11.csv`
+- `descriptive_summary.json` (Table 1 panel facts and Table 2 counts)
+- `revision_content_keywords.csv` (Table 5)
+
 Supporting annual-panel outputs include:
 
 - `supporting_annual_lags.csv`

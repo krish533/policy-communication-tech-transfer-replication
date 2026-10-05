@@ -18,7 +18,7 @@ pip install -r requirements.txt
 python code/reproduce_submission.py
 ```
 
-The canonical runner verifies/fetches the frozen large input and regenerates the publication-facing 34/29 inference, diagnostics, supporting annual-panel analyses, figures, and explicit stacked datasets. Publication-facing direction-label inference uses **100,000 assignments per outcome** with fixed seeds.
+The canonical runner verifies/fetches the frozen inputs and regenerates the mechanical screen, descriptive tables (Tables 1, 2, A2, A10, A11), the Table 5 keyword comparison, the publication-facing 34/29 inference, diagnostics, supporting annual-panel analyses, figures, explicit stacked datasets, and the frozen 25-event benchmark. Publication-facing direction-label inference uses **100,000 assignments per outcome** with fixed seeds.
 
 ## Repository structure
 
@@ -49,7 +49,7 @@ The current manuscript source was copied from that passing snapshot; the clean r
 
 ## Reproducibility scope
 
-CI is designed to reproduce the preferred/strict stacked analyses, supporting annual regressions, explicit stacked datasets, the frozen benchmark, figures, and compiled manuscript. Documentary classification remains human judgment. Two inherited descriptive outputs—the revision-content keyword table and the original provision-coded appendix—are explicitly identified in `TABLE_PROVENANCE.md` because the clean repository does not currently contain all row-level source material needed to rebuild those two tables from raw policy text/coding.
+CI is designed to reproduce the preferred/strict stacked analyses, supporting annual regressions, explicit stacked datasets, the frozen benchmark, figures, and compiled manuscript. Documentary classification remains human judgment. One inherited descriptive output—the original provision-coded appendix (Table A12)—is explicitly identified in `TABLE_PROVENANCE.md` because it comes from hand coding whose row-level source is not in the package.
 
 ## Pre-submission human/source checks
 

@@ -6,6 +6,7 @@ This directory contains the documentary event-coding inputs committed with the c
 
 - `revision_codes_manual.csv` — frozen September 25 25-event benchmark coding.
 - `revision_codes_rereview37.csv` — complete second-pass review of the 37 mechanically eligible non-benchmark pairs, including source-based review notes.
+- `p1_policy_level_indices_institution_year.csv` — frozen copy of Paper 1's policy-level PCSI file (`krish533/Tech-transfer-1`, commit `25a9472`, SHA-256 `694c21ac…4198`, checked in code). The analysis uses Paper 1's 1944–2025 sample, which excludes a one-sentence 1925 Caltech record also present in this file.
 
 ## Fetched frozen input
 
@@ -22,6 +23,8 @@ Expected `merged_autm.csv` SHA-256:
 `070f10179b34a0730d1f09ea3322d21e8f32e20d3036760df2adfef182aa2d4b`
 
 Users remain responsible for complying with applicable AUTM data-use terms.
+
+The fetcher also retrieves `p1_sentence_scores_canonical.csv` (Paper 1's sentence-level text and scores, SHA-256 `81b54dbb…7e49`), used only for the Table 5 keyword comparison.
 
 ## Generated data
 

@@ -13,13 +13,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 STEPS = [
     "fetch_inputs.py",
+    "mechanical_screen.py",
+    "descriptive_tables.py",
+    "revision_content_keywords.py",
     "final_expanded_inference.py",
     "expanded34_diagnostics.py",
     "supporting_annual_analysis.py",
     "build_expanded_manuscript_figures.py",
     "export_final_stacked_datasets.py",
+    "revision_replication.py",
 ]
 EXPECTED = [
+    ROOT / "results" / "mechanical_screen.csv",
+    ROOT / "results" / "descriptive_summary.json",
+    ROOT / "results" / "revision_content_keywords.csv",
+    ROOT / "results" / "table3_reproduced.csv",
     ROOT / "results" / "expanded_manual_sample_results.csv",
     ROOT / "results" / "expanded34_event_list.csv",
     ROOT / "results" / "strict29_event_list.csv",

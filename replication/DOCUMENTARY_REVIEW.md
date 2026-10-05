@@ -4,9 +4,11 @@ This note records the sample hierarchy used by the current manuscript. It supers
 
 ## Revision universe and mechanical screen
 
-Using the pinned Paper 1 observed-document sequence and the threshold `|ΔPCSI| > 0.03`, the linked universe contains **127 revisions at 78 institutions: 47 upward and 80 downward**.
+Using the frozen Paper 1 observed-document sequence restricted to Paper 1's 1944–2025 sample and the threshold `|ΔPCSI| > 0.03`, the linked universe contains **126 revisions at 78 institutions: 46 upward and 80 downward**.
 
-A mechanical screen removes candidate events when the same institution has another threshold revision inside the target event window or when the linked AUTM panel lacks usable core-outcome support. **62 revisions** pass this screen. The screen is defined without consulting estimated technology-transfer effects.
+The Paper 1 corpus file also contains a one-sentence 1925 Caltech record that Paper 1 excludes from its 1944–2025 analysis. Earlier versions of this package kept it, which created a spurious 1925→1944 Caltech "revision" (127 revisions, 47 upward). That revision predates the AUTM panel (1991–2023), never passes the mechanical screen and never falls inside an event window, so dropping it changes no estimate; it changes only the universe counts in Table 2, Table A2 and Table 5.
+
+A mechanical screen removes candidate events when the same institution has another threshold revision inside the target event window or when the linked AUTM panel lacks usable core-outcome support. **62 revisions** pass this screen. The rule is: no other threshold revision at the same institution in [E−4, E+5], and at least one AUTM year with any core outcome before E and at least one in E..E+5. It uses outcome availability only, never outcome values. `code/mechanical_screen.py` implements it and checks that the passing set equals the 62 reviewed pairs.
 
 ## Documentary review
 

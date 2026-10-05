@@ -22,7 +22,7 @@ python code/reproduce_submission.py
 4. manuscript figures;
 5. explicit row-level stacked datasets for the 34-event and 29-event designs.
 
-The revision universe is reconstructed from the Paper 1 observed-policy sequence pinned to commit `25a9472b34334825b6d6c6a334f5b88eb00695b5`.
+The revision universe is reconstructed from a frozen copy of the Paper 1 observed-policy file (`data/p1_policy_level_indices_institution_year.csv`, from `krish533/Tech-transfer-1` commit `25a9472b34334825b6d6c6a334f5b88eb00695b5`, SHA-256 checked in code), restricted to Paper 1's 1944–2025 sample. The Table 5 keyword comparison uses Paper 1's sentence file from the same commit, which `fetch_inputs.py` downloads and checksum-verifies.
 
 See `TABLE_PROVENANCE.md` for a table-by-table distinction between computational outputs and documentary/manual descriptive coding.
 

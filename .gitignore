@@ -5,6 +5,7 @@ __pycache__/
 
 # Fetched/frozen large analysis input
 data/merged_autm.csv
+data/p1_sentence_scores_canonical.csv
 data/_p1_revision_tmp.csv
 
 # Generated stacked datasets

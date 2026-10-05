@@ -11,7 +11,6 @@ corpus and must not be used as the panel identifier.
 """
 from __future__ import annotations
 
-import urllib.request
 from pathlib import Path
 
 import numpy as np
@@ -22,11 +21,13 @@ RAW = ROOT / "data" / "merged_autm.csv"
 EVENTS = ROOT / "data" / "revision_codes_manual.csv"
 RESULTS = ROOT / "results"
 P1_COMMIT = "25a9472b34334825b6d6c6a334f5b88eb00695b5"
-P1_URL = (
-    "https://raw.githubusercontent.com/krish533/Tech-transfer-1/"
-    f"{P1_COMMIT}/P1_replication_package/data/derived/"
-    "policy_level_indices_institution_year.csv"
-)
+# Frozen copy of Paper 1's policy-level file at P1_COMMIT
+# (Tech-transfer-1/P1_replication_package/data/derived/policy_level_indices_institution_year.csv).
+P1_FILE = ROOT / "data" / "p1_policy_level_indices_institution_year.csv"
+P1_SHA256 = "694c21acc07d2a50ed27199d0e7ec01bb6974f08f843cbce2d7da4318f864198"
+# Paper 1 analyses 1944-2025. Its corpus file also carries a one-sentence 1925 Caltech
+# record that Paper 1 excludes; dropping it here keeps both papers on the same sample.
+P1_FIRST_YEAR = 1944
 THRESHOLD = 0.03
 EVENT_MIN = -4
 EVENT_MAX = 5
@@ -88,14 +89,16 @@ def make_panel(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_p1_observed() -> pd.DataFrame:
-    """Load the immutable Paper 1 observed-policy sequence from its pinned commit."""
-    path = ROOT / "data" / "_p1_revision_tmp.csv"
-    urllib.request.urlretrieve(P1_URL, path)
-    p1 = pd.read_csv(path, low_memory=False)
-    path.unlink(missing_ok=True)
+    """Load the frozen Paper 1 observed-policy sequence (1944-2025, as in Paper 1)."""
+    import hashlib
+    digest = hashlib.sha256(P1_FILE.read_bytes()).hexdigest()
+    if digest != P1_SHA256:
+        raise RuntimeError(f"Checksum mismatch for {P1_FILE.name}: {digest}")
+    p1 = pd.read_csv(P1_FILE, low_memory=False)
     p1["Year"] = num(p1["Year"])
     p1["Mean_Tone_Score"] = num(p1["Mean_Tone_Score"])
     p1["Is_Carried_Forward"] = num(p1["Is_Carried_Forward"])
+    p1 = p1[p1["Year"] >= P1_FIRST_YEAR]
     obs = (p1[p1["Is_Carried_Forward"].eq(0)]
            .dropna(subset=["Institution", "Year", "Mean_Tone_Score"])
            .sort_values(["Institution", "Year"])
@@ -107,7 +110,7 @@ def load_p1_observed() -> pd.DataFrame:
 
 
 def revision_universe(raw: pd.DataFrame) -> pd.DataFrame:
-    """Recover all 127 threshold revisions from the P1 observed-document sequence."""
+    """Recover all 126 threshold revisions from the P1 observed-document sequence."""
     obs = load_p1_observed()
     cw = raw[["Institution_pci", "Institution_std"]].dropna().copy()
     cw["p1_norm"] = norm(cw["Institution_pci"])
@@ -120,9 +123,9 @@ def revision_universe(raw: pd.DataFrame) -> pd.DataFrame:
     rev["direction"] = np.where(rev["delta_pcsi"] > 0, "up", "down")
     out = rev[["institution", "Institution", "prev_year", "revision_year",
                "delta_pcsi", "direction"]].sort_values(["institution", "revision_year"])
-    if len(out) != 127 or out["institution"].nunique() != 78:
+    if len(out) != 126 or out["institution"].nunique() != 78:
         raise AssertionError(
-            f"Expected 127 threshold revisions at 78 linked institutions; got {len(out)} / {out['institution'].nunique()}"
+            f"Expected 126 threshold revisions at 78 linked institutions; got {len(out)} / {out['institution'].nunique()}"
         )
     return out.reset_index(drop=True)
 

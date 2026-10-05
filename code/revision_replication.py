@@ -155,7 +155,7 @@ def main():
     (core.RESULTS / "table3_reproduced.json").write_text(json.dumps(rows, indent=2)+"\n")
     print("BH Q", qs)
     assert len(panel)==3507 and panel.institution.nunique()==149
-    assert len(universe)==127 and universe.institution.nunique()==78
+    assert len(universe)==126 and universe.institution.nunique()==78
     assert len(events)==25 and int((events.sign>0).sum())==6
     for r in rows: assert r["n"] == TARGETS[r["outcome"]]["n"]
 

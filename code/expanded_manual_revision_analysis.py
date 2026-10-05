@@ -9,7 +9,7 @@ Samples:
   * expanded34: existing 25 + all 9 newly reviewed C/P & A/B pairs; preferred sample.
   * strict29: apply a uniform sensitivity requiring at least two observed treated
     institution panel years in event times 0..+5 to the combined hand-reviewed set.
-    This drops one existing benchmark event and five of the nine additions, leaving 29.
+    This drops one existing benchmark event and four of the nine additions, leaving 29.
 
 This module defaults to 20,000 random direction assignments for development runs.
 Publication-facing inference is executed by final_expanded_inference.py with 100,000

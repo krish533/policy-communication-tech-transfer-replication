@@ -75,15 +75,36 @@ jobs:
           assert len(e34) == 26679
           assert len(e29) == 23186
 
+          # Supporting annual panel: every printed Table 6 / Table A8 cell, at printed precision.
           annual = pd.read_csv('results/supporting_annual_lags.csv')
-          fm1 = annual[(annual['outcome'] == 'filing_margin') & (annual['lag'] == 1)].iloc[0]
-          fm2 = annual[(annual['outcome'] == 'filing_margin') & (annual['lag'] == 2)].iloc[0]
-          assert int(fm1['n']) == 2271
-          assert int(fm2['n']) == 2132
-          assert abs(float(fm1['beta']) - 0.939) < 0.005
-          assert abs(float(fm1['se']) - 0.505) < 0.005
-          assert abs(float(fm2['beta']) - 1.201) < 0.005
-          assert abs(float(fm2['se']) - 0.520) < 0.005
+          t6 = {
+              'ln_disclosures': [(-0.319,0.375),(-0.368,0.374),(-0.306,0.367),(-0.343,0.374),(-0.316,0.391),(-0.102,0.379)],
+              'filing_margin': [(0.647,0.527),(0.938,0.505),(1.200,0.520),(0.974,0.468),(0.510,0.445),(0.458,0.496)],
+              'ln_new_patent_apps': [(0.328,0.560),(0.569,0.523),(0.894,0.537),(0.631,0.535),(0.195,0.477),(0.356,0.484)],
+              'ln_total_patent_apps': [(0.516,0.573),(0.589,0.525),(0.640,0.499),(0.316,0.487),(0.259,0.498),(0.237,0.468)],
+              'ln_patents_issued': [(0.266,0.560),(0.548,0.577),(1.205,0.634),(0.981,0.573),(0.774,0.631),(1.300,0.578)],
+              'ln_licenses': [(0.518,0.490),(0.596,0.452),(0.400,0.406),(0.274,0.441),(0.161,0.467),(-0.451,0.503)],
+          }
+          for outcome, cells in t6.items():
+              for lag, (b, s) in enumerate(cells):
+                  r = annual[(annual['outcome'] == outcome) & (annual['lag'] == lag)].iloc[0]
+                  assert round(float(r['beta']), 3) == b and round(float(r['se']), 3) == s, (outcome, lag, r['beta'], r['se'])
+          fm = annual[annual['outcome'] == 'filing_margin'].sort_values('lag')
+          assert fm['n'].tolist() == [2339, 2271, 2132, 2005, 1891, 1772]
+          robust = pd.read_csv('results/supporting_annual_robustness.csv')
+          a8 = [(0.938,0.505,0.065,2271),(1.149,0.590,0.054,2271),(0.950,0.559,0.092,2180),
+                (1.151,0.623,0.067,2010),(1.200,0.520,0.023,2132),(0.252,0.203,0.217,2067)]
+          for (_, r), (b, s, p, n) in zip(robust.iterrows(), a8):
+              assert (round(r['beta'],3), round(r['se'],3), round(r['p'],3), int(r['n'])) == (b, s, p, n), r['specification']
+
+          # Sample construction (Table 2) and Table 5.
+          desc = json.loads(Path('results/descriptive_summary.json').read_text())['table2']
+          assert (desc['observed_policy_records'], desc['threshold_revisions'], desc['threshold_revision_institutions'],
+                  desc['pass_mechanical_screen'], desc['preferred_sample'], desc['strict_sample']) == (480, 126, 78, 62, 34, 29)
+          kw = pd.read_csv('results/revision_content_keywords.csv')
+          allrev = kw[kw['panel'] == 'All revisions']
+          assert allrev['n_up'].iloc[0] == 46 and allrev['n_down'].iloc[0] == 80
+          assert allrev['fisher_p'].round(3).tolist() == [0.287, 0.554, 0.019, 1.0, 0.465]
 
           supporting = json.loads(Path('results/supporting_annual_summary.json').read_text())
           assert supporting['placebo']['draws'] == 1000
@@ -97,9 +118,6 @@ jobs:
 
           print('Publication-facing and supporting numerical checks passed.')
           PY
-
-      - name: Reproduce frozen 25-event benchmark
-        run: python code/revision_replication.py
 
       - name: Compile manuscript
         uses: xu-cheng/latex-action@v3
@@ -115,7 +133,7 @@ jobs:
           mkdir -p artifact/code artifact/data/derived artifact/results artifact/manuscript
           cp README.md REPRODUCIBILITY.md TABLE_PROVENANCE.md requirements.txt artifact/
           cp -R code/. artifact/code/
-          cp data/revision_codes_manual.csv data/revision_codes_rereview37.csv data/README.md artifact/data/
+          cp data/revision_codes_manual.csv data/revision_codes_rereview37.csv data/p1_policy_level_indices_institution_year.csv data/README.md artifact/data/
           cp -R data/derived/. artifact/data/derived/
           cp -R results/. artifact/results/
           cp -R replication artifact/

@@ -1,53 +1,52 @@
-# Replication package: Policy Communication and University Technology Transfer
+# Replication package: Policy Communication and University Licensing
 
-This repository contains the clean replication and manuscript package for:
+This is the clean replication package for the paper on university intellectual property policy revisions, policy communication, and technology transfer.
 
-**When Universities Rewrite Their Intellectual-Property Policies: Policy Revisions, Policy Communication, and University Technology Transfer**
+Only the material needed to reproduce the empirical results is included here:
 
-The paper studies documented university intellectual-property policy revisions using an observational stacked event-study design. The preferred documentary sample contains **34 revisions at 32 institutions (8 upward / 26 downward)**. A stricter post-support sensitivity contains **29 revisions (7 upward / 22 downward)**. The earlier September 25 specification with 25 events is retained only as a frozen provenance/robustness benchmark.
+- `README.md`
+- `requirements.txt`
+- `code/`
+- `data/`
 
-## Reproduce the submission results
+No manuscript files, drafting history, or development-only materials are included.
+
+## Quick start
 
 Use Python 3.11 from the repository root:
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate
+# Windows: .venv\Scripts\activate
+
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-python code/reproduce_submission.py
+python code/reproduce.py
 ```
 
-The canonical runner verifies/fetches the frozen inputs and regenerates the mechanical screen, descriptive tables (Tables 1, 2, A2, A10, A11), the Table 5 keyword comparison, the publication-facing 34/29 inference, diagnostics, supporting annual-panel analyses, figures, explicit stacked datasets, and the frozen 25-event benchmark. Publication-facing direction-label inference uses **100,000 assignments per outcome** with fixed seeds.
+The runner creates a `results/` directory and, where needed, generated files under `data/derived/`.
 
-## Repository structure
+## What is reproduced
 
-- `code/` — canonical analysis and replication programs.
-- `data/` — documentary revision coding plus instructions for the checksum-verified frozen AUTM input.
-- `manuscript/` — current LaTeX manuscript source and appendix.
-- `replication/` — documentary-review provenance.
-- `results/` — generated numerical outputs documented by `results/README.md`.
-- `REPRODUCIBILITY.md` — detailed clean-checkout instructions and automated checks.
-- `TABLE_PROVENANCE.md` — table-by-table map of computational versus documentary/manual sources.
-- `.github/workflows/` — end-to-end replication and manuscript-build CI.
+The code reconstructs the revision universe, applies the documentary event definitions, and reproduces the preferred 34-event stacked event study, the stricter 29-event sensitivity, balance and influence diagnostics, the continuous annual PCSI analyses, and the stricter PCSI-threshold sensitivity.
 
-## Empirical hierarchy
+The preferred documentary sample contains 34 revisions at 32 universities: 8 upward and 26 downward revisions. The principal licensing estimate is approximately 0.495 log points with a clustered standard error of 0.140. The stricter 29-event sample produces an estimate of approximately 0.499 with a standard error of 0.133.
 
-1. **Preferred:** 34 documentary-reviewed revisions, 8 upward and 26 downward.
-2. **Strict sensitivity:** 29 revisions, 7 upward and 22 downward.
-3. **Frozen benchmark:** September 25 25-event specification, retained for provenance/robustness.
+The analysis is observational. Revision direction is chosen by universities and should not be interpreted as randomly assigned.
 
-The design is observational. The paper does not claim that supportive wording itself causally raises licensing.
+## Data
 
-## Source snapshot
+The committed files in `data/` contain the policy-level PCSI input and documentary revision coding used to construct the event sample.
 
-This clean repository was separated from the development repository using the tested source snapshot:
+The AUTM analysis file is not duplicated here. `code/fetch_inputs.py` retrieves the frozen analysis input from the tested source snapshot and checks its SHA-256 checksum before use. The same script retrieves the sentence-level Paper 1 input used for the descriptive revision-content comparison.
 
-`krish533/policy-communication-tech-transfer` commit `6015d82feea1b3d593dfa329f2f1cb7a16349436`.
+Users are responsible for complying with applicable AUTM data-use terms.
 
-The current manuscript source was copied from that passing snapshot; the clean repository then removed development-only scripts/history and added stricter clean-checkout CI and supporting annual-table replication.
+## Main files
 
-## Reproducibility scope
+`code/reproduce.py` is the single replication entry point.
 
-CI is designed to reproduce the preferred/strict stacked analyses, supporting annual regressions, explicit stacked datasets, the frozen benchmark, figures, and compiled manuscript. Documentary classification remains human judgment. One inherited descriptive output—the original provision-coded appendix (Table A12)—is explicitly identified in `TABLE_PROVENANCE.md` because it comes from hand coding whose row-level source is not in the package.
+The core stacked event-study implementation is in `code/revision_event_study.py`. Publication-facing inference for the preferred and strict samples is in `code/final_expanded_inference.py`. The additional threshold sensitivity is in `code/threshold_sensitivity_final34.py`.
 
+All numerical outputs are written to `results/`.

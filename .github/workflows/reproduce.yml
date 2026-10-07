@@ -31,6 +31,9 @@ jobs:
       - name: Reproduce publication-facing analysis
         run: python code/reproduce_submission.py
 
+      - name: Run final-34 threshold sensitivity
+        run: python code/threshold_sensitivity_final34.py
+
       - name: Verify publication-facing numerical targets
         run: |
           python - <<'PY'

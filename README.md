@@ -51,6 +51,3 @@ The current manuscript source was copied from that passing snapshot; the clean r
 
 CI is designed to reproduce the preferred/strict stacked analyses, supporting annual regressions, explicit stacked datasets, the frozen benchmark, figures, and compiled manuscript. Documentary classification remains human judgment. One inherited descriptive output—the original provision-coded appendix (Table A12)—is explicitly identified in `TABLE_PROVENANCE.md` because it comes from hand coding whose row-level source is not in the package.
 
-## Pre-submission human/source checks
-
-See GitHub issue **#1, “Pre-submission human checks.”** In particular, automation does not replace independent verification of the nine second-pass classifications, author/funding/conflict disclosures, journal-specific data/code language, final PDF inspection, or preservation of the row-level provision-coding source if Appendix A6 is to be described as fully computationally reproducible.
